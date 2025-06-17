@@ -1,0 +1,19 @@
+# Ignore build directory
+/build/
+
+# Ignore CMake generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Ignore compiled object files and binaries
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.lib
+
+# VS Code files
+.vscode/
