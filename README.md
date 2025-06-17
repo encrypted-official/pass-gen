@@ -1,2 +1,2 @@
-# pass-gen
+# _Encrypted's Password Generator
 A simple password generator for your everyday use.
