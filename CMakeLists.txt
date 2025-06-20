@@ -11,9 +11,11 @@ add_executable(${PNAME} ${SOURCES})
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/third_party/raylib/include)
+include_directories(${CMAKE_SOURCE_DIR}/third_party/libsodium/include)
 
 target_link_libraries(${PNAME}
     ${CMAKE_SOURCE_DIR}/third_party/raylib/lib/libraylib.a
+    ${CMAKE_SOURCE_DIR}/third_party/libsodium/lib/libsodium.a
     opengl32 gdi32 winmm
 )
 
