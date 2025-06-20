@@ -17,3 +17,5 @@ Makefile
 
 # VS Code files
 .vscode/
+
+* text=auto
