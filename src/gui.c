@@ -12,19 +12,19 @@ void Gui_Init(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "_Encrypted's Password Generator");
     SetTargetFPS(FRAMES_PER_SECOND);
 
-    Screen_StartMenu_Init();
+    Screen_Generator_Init();
 }
 
 void Gui_Update(void)
 {
-    Screen_StartMenu_Update();
+    Screen_Generator_Update();
 }
 
 void Gui_Draw(void)
 {
     BeginDrawing();
         ClearBackground(RAYWHITE);
-        Screen_StartMenu_Draw();
+        Screen_Generator_Draw();
     EndDrawing();
 }
 
