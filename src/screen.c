@@ -1,5 +1,7 @@
 #include "screen.h"
+#include <string.h>
 #include "raylib.h"
+#include "sodium.h"
 
 typedef struct StartMenuState
 {
@@ -12,26 +14,7 @@ typedef struct StartMenuState
 
 } StartMenuState;
 
-typedef struct ToggleOption {
-    const char *toggled_text;
-    const char *untoggled_text;
-    Rectangle rect;
-    bool flag;
-    bool isHovered;
-
-} ToggleOption;
-
-typedef struct GeneratorState
-{
-    Font font[2];
-    Texture2D background;
-    Rectangle section_toggleables;
-    ToggleOption toggle_option[4];
-
-} GeneratorState;
-
 static StartMenuState startMenu;
-static GeneratorState generatorScreen;
 
 void Screen_StartMenu_Init(void)
 {
@@ -47,8 +30,7 @@ void Screen_StartMenu_Update(void)
     if (CheckCollisionPointRec(GetMousePosition(), startMenu.button_normal_rect) &&
         IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-        // Screen_StartMenu_Unload();
-        // Screen_Generator_Init();
+
     }
 }
 
@@ -57,12 +39,6 @@ void Screen_StartMenu_Draw(void)
     ClearBackground((Color){ 55, 55, 55, 255 });
 
     DrawTexture(startMenu.background, 0, 0, (Color){ 55, 55, 55, 100 });
-    // DrawTexturePro(startMenu.button_primary,
-    //     (Rectangle){ 0, 0, startMenu.button_primary.width, startMenu.button_primary.height },
-    //     (Rectangle){ startMenu.button_normal_rec.x, startMenu.button_normal_rec.y, startMenu.button_normal_rec.width, startMenu.button_normal_rec.height },
-    //     (Vector2){0, 0},
-    //     0.0f,
-    //     WHITE);
 }
 
 void Screen_StartMenu_Unload(void)
@@ -70,37 +46,120 @@ void Screen_StartMenu_Unload(void)
     UnloadTexture(startMenu.background);
 }
 
+typedef struct ToggleOption
+{
+    const char *charset;
+    const char *toggled_text;
+    const char *untoggled_text;
+    Rectangle rect;
+    bool flag;
+    bool isHovered;
+
+} ToggleOption;
+
+typedef struct Password
+{
+    char pass[256];
+    int len;
+
+} Password;
+
+typedef struct GeneratorState
+{
+    Font font[2];
+    Texture2D background;
+    Rectangle section_password;
+    Rectangle section_toggleables;
+    Rectangle button_regen;
+    Rectangle button_copy;
+    ToggleOption toggle_option[4];
+    Password current_password;
+
+} GeneratorState;
+
+static GeneratorState generatorScreen;
+
+void RegeneratePassword(void)
+{
+    char final_charset[256] = {0};
+    memset(generatorScreen.current_password.pass, 0, sizeof(generatorScreen.current_password.pass));
+
+    for (int i = 0; i < 4; ++i)
+    {
+        if (generatorScreen.toggle_option[i].flag)
+        {
+            strncat(final_charset, generatorScreen.toggle_option[i].charset, sizeof(final_charset) - strlen(final_charset) - 1);     
+        }
+    }
+
+    int final_charset_size = strlen(final_charset);
+
+    for (int i = 0; i < generatorScreen.current_password.len; ++i)
+    {
+        unsigned int index = randombytes_uniform(final_charset_size);
+        generatorScreen.current_password.pass[i] += final_charset[index];
+    }
+}
+
+void DrawPassText(void)
+{
+    int font_size = 32;
+
+    DrawTextEx(generatorScreen.font[1],
+            generatorScreen.current_password.pass,
+            (Vector2){ generatorScreen.section_password.x + (generatorScreen.section_password.width - MeasureText(generatorScreen.current_password.pass, font_size)) / 2,
+                    generatorScreen.section_password.y + (generatorScreen.section_password.height - font_size) / 2 },
+            font_size,
+            1.5f,
+            BLACK);
+}
+
 void Screen_Generator_Init(void)
 {
-    generatorScreen.font[0] = LoadFontEx("assets/fonts/Arvo/Arvo-Regular.ttf", 128, 0, 0);
-    SetTextureFilter(generatorScreen.font[0].texture, TEXTURE_FILTER_TRILINEAR);
+    if (sodium_init() < 0)
+    {
+        exit(1);
+    }
+
+    // generatorScreen.font[0] = LoadFontEx("assets/fonts/Arvo/Arvo-Regular.ttf", 128, 0, 0);
+    // SetTextureFilter(generatorScreen.font[0].texture, TEXTURE_FILTER_TRILINEAR);
 
     generatorScreen.font[1] = LoadFontEx("assets/fonts/Arvo/Arvo-Bold.ttf", 128, 0, 0);
     SetTextureFilter(generatorScreen.font[1].texture, TEXTURE_FILTER_TRILINEAR);
 
-    generatorScreen.background = LoadTexture("assets/textures/background_1.png");
+    // generatorScreen.background = LoadTexture("assets/textures/background_1.png");
 
-    generatorScreen.section_toggleables = (Rectangle){ 55, 265, 340, 250 };
+    generatorScreen.section_password = (Rectangle){ 55, 75, 790, 75 };
+    generatorScreen.section_toggleables = (Rectangle){ 55, 285, 340, 250 };
+    generatorScreen.button_regen = (Rectangle){ (55 + 790) - 400, (285 + 250) - 250, 200, 100 };
+    generatorScreen.button_copy = (Rectangle){ (55 + 790) - 400, (285 + 250) - 100, 400, 100 };
 
+    generatorScreen.toggle_option[0].charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     generatorScreen.toggle_option[0].toggled_text = "[x] Uppercase (A-Z)";
     generatorScreen.toggle_option[0].untoggled_text = "[  ] Uppercase (A-Z)";
-    generatorScreen.toggle_option[0].rect = (Rectangle){ 85, 300, 250, 30 };
+    generatorScreen.toggle_option[0].rect = (Rectangle){ 85, 320, 250, 30 };
     generatorScreen.toggle_option[0].flag = true;
     
+    generatorScreen.toggle_option[1].charset = "abcdefghijklmnopqrstuvwxyz";
     generatorScreen.toggle_option[1].toggled_text = "[x] Lowercase (a-z)";
     generatorScreen.toggle_option[1].untoggled_text = "[  ] Lowercase (a-z)";
-    generatorScreen.toggle_option[1].rect = (Rectangle){ 85, 350, 247.5f, 30 };
+    generatorScreen.toggle_option[1].rect = (Rectangle){ 85, 370, 247.5f, 30 };
     generatorScreen.toggle_option[1].flag = true;
 
+    generatorScreen.toggle_option[2].charset = "0123456789";
     generatorScreen.toggle_option[2].toggled_text = "[x] Numbers (0-9)";
     generatorScreen.toggle_option[2].untoggled_text = "[  ] Numbers (0-9)";
-    generatorScreen.toggle_option[2].rect = (Rectangle){ 85, 400, 225, 30 };
+    generatorScreen.toggle_option[2].rect = (Rectangle){ 85, 420, 225, 30 };
     generatorScreen.toggle_option[2].flag = false;
 
+    generatorScreen.toggle_option[3].charset = "!@#$%^&*()-_=+[]{}|;:,.<>?";
     generatorScreen.toggle_option[3].toggled_text = "[x] Symbols";
     generatorScreen.toggle_option[3].untoggled_text = "[  ] Symbols";
-    generatorScreen.toggle_option[3].rect = (Rectangle){ 85, 450, 150, 30 };
+    generatorScreen.toggle_option[3].rect = (Rectangle){ 85, 470, 150, 30 };
     generatorScreen.toggle_option[3].flag = false;
+
+    generatorScreen.current_password.len = 22;
+    RegeneratePassword();
 }
 
 void Screen_Generator_Update(void)
@@ -129,8 +188,25 @@ void Screen_Generator_Update(void)
                 if (isAtleastOneOptionToggledExceptClicked)
                 {
                     generatorScreen.toggle_option[i].flag = !generatorScreen.toggle_option[i].flag;
+                    RegeneratePassword();
                 }
             }
+        }
+    }
+
+    if (CheckCollisionPointRec(GetMousePosition(), generatorScreen.button_regen))
+    {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            RegeneratePassword();   
+        }
+    }
+
+    if (CheckCollisionPointRec(GetMousePosition(), generatorScreen.button_copy))
+    {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            SetClipboardText(generatorScreen.current_password.pass);
         }
     }
 }
@@ -140,18 +216,53 @@ void Screen_Generator_Draw(void)
     // ClearBackground((Color){ 55, 55, 55, 255 });
     ClearBackground((Color){ 235, 235, 235, 255 });
     // DrawTexture(startMenu.background, 0, 0, (Color){ 55, 55, 55, 100 });
+
+    DrawRectangleRounded((Rectangle) { generatorScreen.section_password.x - 10,
+                                        generatorScreen.section_password.y - 10,
+                                        generatorScreen.section_password.width + 2 * 10,
+                                        generatorScreen.section_password.height + 2 * 10 }, 0.1f, 16, (Color){ 152, 251, 152, 255 });
+    DrawRectangleRounded(generatorScreen.section_password, 0.1f, 16, (Color){ 245, 245, 245, 255 });
     
     DrawRectangleRounded((Rectangle) { generatorScreen.section_toggleables.x - 10,
                                         generatorScreen.section_toggleables.y - 10,
                                         generatorScreen.section_toggleables.width + 2 * 10,
                                         generatorScreen.section_toggleables.height + 2 * 10 }, 0.1f, 16, (Color){ 200, 200, 200, 255 });
-
     DrawRectangleRounded(generatorScreen.section_toggleables, 0.1f, 16, (Color){ 245, 245, 245, 255 });
+    
+    DrawRectangleRounded((Rectangle) { generatorScreen.button_regen.x - 10,
+                                        generatorScreen.button_regen.y - 10,
+                                        generatorScreen.button_regen.width + 2 * 10,
+                                        generatorScreen.button_regen.height + 2 * 10 }, 0.1f, 16, GRAY);
+    DrawRectangleRounded(generatorScreen.button_regen, 0.1f, 16, (Color){ 245, 245, 245, 255 });
+
+    Vector2 temp_size = MeasureTextEx(generatorScreen.font[1], "REGENERATE", 28, 2.0f);
+    DrawTextEx(generatorScreen.font[1],
+            "REGENERATE",
+            (Vector2){ generatorScreen.button_regen.x + (generatorScreen.button_regen.width - temp_size.x) / 2,
+                    generatorScreen.button_regen.y + (generatorScreen.button_regen.height - temp_size.y) / 2 },
+            28,
+            2.0f,
+            DARKGRAY);
+    
+    DrawRectangleRounded((Rectangle) { generatorScreen.button_copy.x - 10,
+                                        generatorScreen.button_copy.y - 10,
+                                        generatorScreen.button_copy.width + 2 * 10,
+                                        generatorScreen.button_copy.height + 2 * 10 }, 0.1f, 16, (Color){ 33, 150, 243, 200 });
+    DrawRectangleRounded(generatorScreen.button_copy, 0.1f, 16, (Color){ 245, 245, 245, 255 });
+
+    temp_size = MeasureTextEx(generatorScreen.font[1], "COPY", 52, 2.0f);
+    DrawTextEx(generatorScreen.font[1],
+            "COPY",
+            (Vector2){ generatorScreen.button_copy.x + (generatorScreen.button_copy.width - temp_size.x) / 2,
+                    generatorScreen.button_copy.y + (generatorScreen.button_copy.height - temp_size.y) / 2 },
+            52,
+            2.0f,
+            (Color){ 33, 150, 243, 255 });
+
+    DrawPassText();
 
     for (int i = 0; i < 4; ++i)
     {   
-        // DrawRectangleRec(generatorScreen.toggle_option[i].rect, generatorScreen.toggle_option[i].flag ? DARKGREEN : MAROON);
-        
         DrawTextEx(generatorScreen.font[1],
                 generatorScreen.toggle_option[i].flag ? generatorScreen.toggle_option[i].toggled_text : generatorScreen.toggle_option[i].untoggled_text,
                 (Vector2){ generatorScreen.toggle_option[i].rect.x, generatorScreen.toggle_option[i].rect.y},
@@ -163,7 +274,7 @@ void Screen_Generator_Draw(void)
 
 void Screen_Generator_Unload(void)
 {
-    UnloadFont(generatorScreen.font[0]);
+    // UnloadFont(generatorScreen.font[0]);
     UnloadFont(generatorScreen.font[1]);
-    UnloadTexture(generatorScreen.background);
+    // UnloadTexture(generatorScreen.background);
 }
