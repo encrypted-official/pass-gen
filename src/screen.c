@@ -111,7 +111,7 @@ void DrawPassText(void)
                     generatorScreen.section_password.y + (generatorScreen.section_password.height - font_size) / 2 },
             font_size,
             1.5f,
-            BLACK);
+            WHITE);
 }
 
 void Screen_Generator_Init(void)
@@ -214,41 +214,44 @@ void Screen_Generator_Update(void)
 void Screen_Generator_Draw(void)
 {
     // ClearBackground((Color){ 55, 55, 55, 255 });
-    ClearBackground((Color){ 235, 235, 235, 255 });
+    ClearBackground(BLACK);
     // DrawTexture(startMenu.background, 0, 0, (Color){ 55, 55, 55, 100 });
 
     DrawRectangleRounded((Rectangle) { generatorScreen.section_password.x - 10,
                                         generatorScreen.section_password.y - 10,
                                         generatorScreen.section_password.width + 2 * 10,
                                         generatorScreen.section_password.height + 2 * 10 }, 0.1f, 16, (Color){ 152, 251, 152, 255 });
-    DrawRectangleRounded(generatorScreen.section_password, 0.1f, 16, (Color){ 245, 245, 245, 255 });
+
+    DrawRectangleRounded(generatorScreen.section_password, 0.1f, 16, (Color){ 45, 45, 45, 255 });
     
     DrawRectangleRounded((Rectangle) { generatorScreen.section_toggleables.x - 10,
                                         generatorScreen.section_toggleables.y - 10,
                                         generatorScreen.section_toggleables.width + 2 * 10,
-                                        generatorScreen.section_toggleables.height + 2 * 10 }, 0.1f, 16, (Color){ 200, 200, 200, 255 });
-    DrawRectangleRounded(generatorScreen.section_toggleables, 0.1f, 16, (Color){ 245, 245, 245, 255 });
+                                        generatorScreen.section_toggleables.height + 2 * 10 }, 0.05f, 16, (Color){ 45, 45, 45, 200 });
+
+    // DrawRectangleRounded(generatorScreen.section_toggleables, 0.05f, 16, (Color){ 62, 62, 62, 200 });
     
     DrawRectangleRounded((Rectangle) { generatorScreen.button_regen.x - 10,
                                         generatorScreen.button_regen.y - 10,
                                         generatorScreen.button_regen.width + 2 * 10,
-                                        generatorScreen.button_regen.height + 2 * 10 }, 0.1f, 16, GRAY);
-    DrawRectangleRounded(generatorScreen.button_regen, 0.1f, 16, (Color){ 245, 245, 245, 255 });
+                                        generatorScreen.button_regen.height + 2 * 10 }, 0.1f, 16, (Color){ 45, 45, 45, 200 });
+    DrawRectangleRounded(generatorScreen.button_regen, 0.1f, 16, BLACK);
 
-    Vector2 temp_size = MeasureTextEx(generatorScreen.font[1], "REGENERATE", 28, 2.0f);
+    Vector2 temp_size = MeasureTextEx(generatorScreen.font[1], "REGENERATE", 24, 1.5f);
     DrawTextEx(generatorScreen.font[1],
             "REGENERATE",
             (Vector2){ generatorScreen.button_regen.x + (generatorScreen.button_regen.width - temp_size.x) / 2,
                     generatorScreen.button_regen.y + (generatorScreen.button_regen.height - temp_size.y) / 2 },
-            28,
-            2.0f,
-            DARKGRAY);
+            24,
+            1.5f,
+            WHITE);
     
     DrawRectangleRounded((Rectangle) { generatorScreen.button_copy.x - 10,
                                         generatorScreen.button_copy.y - 10,
                                         generatorScreen.button_copy.width + 2 * 10,
-                                        generatorScreen.button_copy.height + 2 * 10 }, 0.1f, 16, (Color){ 33, 150, 243, 200 });
-    DrawRectangleRounded(generatorScreen.button_copy, 0.1f, 16, (Color){ 245, 245, 245, 255 });
+                                        generatorScreen.button_copy.height + 2 * 10 }, 0.1f, 16, (Color){ 45, 45, 45, 200 });
+
+    DrawRectangleRounded(generatorScreen.button_copy, 0.1f, 16, BLACK);
 
     temp_size = MeasureTextEx(generatorScreen.font[1], "COPY", 52, 2.0f);
     DrawTextEx(generatorScreen.font[1],
@@ -268,7 +271,7 @@ void Screen_Generator_Draw(void)
                 (Vector2){ generatorScreen.toggle_option[i].rect.x, generatorScreen.toggle_option[i].rect.y},
                 generatorScreen.toggle_option[i].isHovered ? 28 : 26,
                 1.5f,
-                generatorScreen.toggle_option[i].isHovered ? (Color){ 30, 30, 30, 255 } : (generatorScreen.toggle_option[i].flag ? (Color){ 33, 150, 243, 255 } : (Color){ 130, 130, 130, 150 }));
+                generatorScreen.toggle_option[i].isHovered ? RAYWHITE : (generatorScreen.toggle_option[i].flag ? (Color){ 33, 150, 243, 255 } : (Color){ 130, 130, 130, 150 }));
     }
 }
 
