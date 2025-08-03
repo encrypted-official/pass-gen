@@ -3,15 +3,15 @@
 
 int main(void)
 {
-    Gui_Init();
+    GuiInit();
     
     while (!WindowShouldClose())
     {
-        Gui_Update();
-        Gui_Draw();
+        GuiUpdate();
+        GuiDraw();
     }
 
-    Gui_Unload();
+    GuiUnload();
 
     return 0;
 }
