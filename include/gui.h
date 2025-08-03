@@ -1,6 +1,13 @@
 #pragma once
 
-void Gui_Init(void);
-void Gui_Update(void);
-void Gui_Draw(void);
-void Gui_Unload(void);
+typedef enum GuiType
+{
+    HOME = 0,
+    FILE,
+    GENERATE
+} GuiType;
+
+void GuiInit(void);
+void GuiUpdate(void);
+void GuiDraw(void);
+void GuiUnload(void);

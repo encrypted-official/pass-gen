@@ -2,33 +2,42 @@
 #include "screen.h"
 #include "raylib.h"
 
-const int SCREEN_WIDTH = 900;
-const int SCREEN_HEIGHT = 600;
-const int FRAMES_PER_SECOND = 144;
+const int SCREEN_WIDTH = 1100;
+const int SCREEN_HEIGHT = 700;
 
-void Gui_Init(void)
+GuiType currentGui = HOME;
+
+void GuiInit(void)
 {
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_UNDECORATED);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "_Encrypted's Password Generator");
-    SetTargetFPS(FRAMES_PER_SECOND);
+    SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
 
-    Screen_Generator_Init();
+    screenInitFuncs[currentGui]();
+    ScreenMenuBarInit();
 }
 
-void Gui_Update(void)
+void GuiUpdate(void)
 {
-    Screen_Generator_Update();
+    screenUpdateFuncs[currentGui]();
+    ScreenMenuBarUpdate();
 }
 
-void Gui_Draw(void)
+void GuiDraw(void)
 {
     BeginDrawing();
-        ClearBackground(RAYWHITE);
-        Screen_Generator_Draw();
+    ClearBackground(RAYWHITE);
+
+    screenDrawFuncs[currentGui]();
+    ScreenMenuBarDraw();
+
     EndDrawing();
 }
 
-void Gui_Unload(void)
+void GuiUnload(void)
 {
+    screenUnloadFuncs[currentGui]();
+    ScreenMenuBarUnload();
+
     CloseWindow();
 }
